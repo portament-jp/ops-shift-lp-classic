@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>オプスシフト - シフト管理の「あたりまえ」、 変えませんか？</title>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Old+Mincho:wght@400;700;900&family=Noto+Sans+JP:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Noto Sans JP',sans-serif;color:#1C1C1C;background:#F5F0E8;overflow-x:hidden}
+a{text-decoration:none;color:inherit}
+:root{--ink:#1C1C1C;--ink-light:#3A3A3A;--ink-faint:#7A7A70;--green:#2D4A3E;--green-light:#3D6652;--green-dark:#1B3A2D;--gold:#B8860B;--gold-light:#D4A84B;--red:#B33B24;--paper:#F5F0E8;--paper-warm:#EDE6DA;--paper-dark:#E0D8C8;--serif:'Zen Old Mincho','Noto Serif JP',serif;--sans:'Noto Sans JP',sans-serif}
+.washi{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='.03'/%3E%3C/svg%3E")}
+.nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(245,240,232,.96);backdrop-filter:blur(8px);border-bottom:1px solid var(--paper-dark);padding:0 32px;height:60px;display:flex;align-items:center;justify-content:space-between}
+.nav-logo{font-family:var(--serif);font-size:18px;font-weight:900;color:var(--ink);letter-spacing:3px}
+.nav-logo small{font-size:9px;color:var(--ink-faint);font-weight:400;letter-spacing:1px;display:block;font-family:var(--sans)}
+.nav-links{display:flex;gap:28px;font-size:12px;color:var(--ink-faint)}.nav-links a:hover{color:var(--green)}
+.vert-text{position:absolute;writing-mode:vertical-rl;font-family:var(--serif);font-size:12px;color:var(--paper-fold);letter-spacing:8px;font-weight:300;pointer-events:none;user-select:none;color:rgba(216,207,192,.8)}
+.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:120px 24px 80px;text-align:center;position:relative;background:var(--paper)}
+.hero::before{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:radial-gradient(ellipse at 20% 50%,rgba(45,74,62,.03) 0%,transparent 50%)}
+.hero-c{position:relative;max-width:720px;opacity:0;transform:translateY(24px);animation:fadeUp .8s .2s ease both}
+.hero-label{font-family:var(--sans);font-size:10px;letter-spacing:5px;color:var(--green);font-weight:600;margin-bottom:28px;opacity:.7}
+.hero h1{font-family:var(--serif);font-size:clamp(26px,5vw,46px);font-weight:900;line-height:1.5;margin-bottom:20px;letter-spacing:3px}
+.hero h1 em{font-style:normal;color:var(--green);position:relative;display:inline-block}
+.hero h1 em::after{content:'';position:absolute;bottom:2px;left:-4px;right:-4px;height:8px;background:rgba(45,74,62,.08);z-index:-1}
+.hero-sub{font-family:var(--serif);font-size:clamp(13px,1.8vw,16px);color:var(--ink-light);line-height:2.2;margin-bottom:36px;font-weight:300}
+.hero-cta{display:inline-block;background:var(--green);color:var(--paper);padding:16px 44px;font-family:var(--serif);font-size:14px;font-weight:500;letter-spacing:3px;transition:all .3s}
+.hero-cta:hover{background:var(--green-dark)}
+.seal{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;border:2px solid var(--red);border-radius:4px;color:var(--red);font-family:var(--serif);font-size:12px;font-weight:900;line-height:1.1;text-align:center;transform:rotate(-3deg);opacity:.8}
+.divider{display:flex;align-items:center;justify-content:center;gap:12px;padding:40px 0}
+.divider-line{width:50px;height:1px;background:var(--green);opacity:.2}
+.divider-diamond{width:6px;height:6px;background:var(--green);transform:rotate(45deg);opacity:.3}
+.s{padding:80px 24px}.s-green{background:var(--green);color:var(--paper)}
+.si{max-width:800px;margin:0 auto}
+.s-label{font-family:var(--sans);font-size:10px;letter-spacing:5px;color:var(--green);font-weight:600;text-align:center;margin-bottom:12px;opacity:.6}
+.s-green .s-label{color:var(--gold-light);opacity:.8}
+.s-title{font-family:var(--serif);font-size:clamp(22px,3.5vw,30px);font-weight:900;text-align:center;margin-bottom:12px;letter-spacing:2px}
+.s-green .s-title{color:var(--paper)}
+.s-desc{font-family:var(--sans);font-size:13px;color:var(--ink-faint);text-align:center;margin-bottom:40px;line-height:2}
+.s-green .s-desc{color:rgba(245,240,232,.5)}
+.prob-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px}
+.prob-card{background:var(--paper);border:1px solid var(--paper-dark);padding:24px 20px;position:relative}
+.prob-card::before{content:'';position:absolute;top:12px;left:0;width:3px;height:24px;background:var(--red);opacity:.5}
+.prob-icon{font-size:22px;margin-bottom:8px}
+.prob-card h3{font-family:var(--serif);font-size:14px;font-weight:700;margin-bottom:4px}
+.prob-card p{font-size:11px;color:var(--ink-faint);line-height:1.8}
+.hf{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;margin:28px 0}
+.hf-b{background:var(--paper-warm);border:1px solid var(--paper-dark);padding:10px 12px;text-align:center;min-width:68px}
+.hf-i{font-size:16px;margin-bottom:2px}.hf-l{font-size:9px;font-weight:600;color:var(--ink)}.hf-s{font-size:8px;color:var(--ink-faint)}
+.hf-a{color:var(--green);opacity:.3;font-size:12px}
+.hf-out{background:rgba(45,74,62,.05);border-color:rgba(45,74,62,.15)}.hf-out .hf-l{color:var(--green)}
+.step-tabs{display:flex;gap:4px;justify-content:center;margin-bottom:24px;flex-wrap:wrap}
+.step-tab{padding:6px 14px;border:1px solid var(--paper-dark);background:var(--paper);color:var(--ink-faint);font-size:10px;font-weight:600;cursor:pointer;transition:all .3s}
+.step-tab.active{border-color:var(--green);background:var(--green);color:var(--paper)}
+.step-panel{display:none;animation:fadeUp .4s ease}.step-panel.active{display:block}
+.step-card{background:var(--paper);border:1px solid var(--paper-dark);padding:24px 20px}
+.step-card h3{font-family:var(--serif);font-size:16px;font-weight:700;margin-bottom:6px}
+.step-card>p{font-size:12px;color:var(--ink-faint);line-height:1.8;margin-bottom:12px}
+.step-det{display:flex;gap:10px;flex-wrap:wrap}
+.step-pt{flex:1 1 140px;background:var(--paper-warm);border:1px solid var(--paper-dark);padding:10px;font-size:11px;color:var(--ink-light);line-height:1.7}
+.step-pt strong{color:var(--green);display:block;margin-bottom:2px;font-size:10px;letter-spacing:1px}
+.demo-s{display:none;animation:fadeUp .4s ease}.demo-s.active{display:block}
+.uc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.uc-card{background:var(--paper);border:1px solid var(--paper-dark);padding:22px 18px;cursor:pointer;transition:all .3s}
+.uc-card:hover{border-color:var(--green);box-shadow:0 8px 24px rgba(45,74,62,.06)}
+.uc-card.active{border-color:var(--green);box-shadow:0 8px 24px rgba(45,74,62,.08)}
+.uc-icon{font-size:26px;margin-bottom:8px}.uc-card h3{font-family:var(--serif);font-size:13px;font-weight:700;margin-bottom:4px}.uc-card p{font-size:10px;color:var(--ink-faint);line-height:1.6}
+table.cmp{width:100%;border-collapse:collapse;font-size:11px}
+table.cmp thead tr{border-bottom:2px solid var(--paper-dark)}
+table.cmp th{padding:8px;color:var(--ink-faint);font-weight:600}
+table.cmp td{padding:8px;border-bottom:1px solid var(--paper-dark)}
+table.cmp tr:nth-child(even){background:var(--paper-warm)}
+.case-box{background:var(--paper);border:2px solid var(--green);padding:28px 24px;text-align:center}
+.case-num{font-family:var(--serif);font-size:36px;font-weight:900;color:var(--green)}.case-label{font-size:11px;color:var(--ink-faint);margin-top:2px}
+.faq-item{border-bottom:1px solid var(--paper-dark);padding:20px 0}
+.faq-q{font-family:var(--serif);font-size:14px;font-weight:700;display:flex;align-items:center;gap:12px}
+.faq-q::before{content:'Q';font-size:10px;background:var(--green);color:var(--paper);width:22px;height:22px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-weight:700}
+.faq-a{font-size:11px;color:var(--ink-faint);line-height:2;padding:10px 0 0 34px}
+.cta-s{text-align:center;padding:80px 24px;background:var(--green);position:relative;overflow:hidden}
+.cta-s::before{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='.04'/%3E%3C/svg%3E")}
+.cta-inner{position:relative}
+.cta-btn{display:inline-block;background:var(--paper);color:var(--green);padding:16px 44px;font-family:var(--serif);font-size:14px;font-weight:700;letter-spacing:3px;transition:all .3s}
+.cta-btn:hover{background:var(--gold-light);color:var(--green-dark)}
+footer{padding:28px 24px;text-align:center;font-size:10px;color:var(--ink-faint);border-top:1px solid var(--paper-dark)}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 rgba(45,74,62,.3)}50%{box-shadow:0 0 20px rgba(45,74,62,.2)}}
+@media(max-width:768px){.nav-links{display:none}.hf{flex-direction:column;gap:4px}.step-det{flex-direction:column}.uc-grid{grid-template-columns:1fr}.prob-grid{grid-template-columns:1fr}.vert-text{display:none}}
+</style>
+</head>
+<body>
+<nav class="nav"><div class="nav-logo">オプスシフト<small>OPS SHIFT</small></div><div class="nav-links"><a href="#problem">課題</a><a href="#flow">仕組み</a><a href="#demo">体験</a><a href="#usecases">業種別</a><a href="#compare">比較</a><a href="#faq">FAQ</a></div></nav>
+
+<section class="hero washi">
+<div class="vert-text" style="top:140px;left:24px">シフト管理を自動化</div>
+<div class="vert-text" style="top:200px;right:24px">オプスシフト</div>
+<div class="hero-c">
+
+<h1>シフト管理の「あたりまえ」、<br/><em>変えませんか？</em></h1>
+<p class="hero-sub">希望の収集、Excelへの転記、制約条件の確認、確定連絡、勤怠入力——<br/>全部、自動にできます。あなたがやるのは「候補リストを見てOKを出すだけ」。<br/>今のExcelもメールも、そのまま使えます。</p>
+<div class="hf">
+<div class="hf-b"><div class="hf-i">📩</div><div class="hf-l">希望を自動収集</div><div class="hf-s">定期アナウンス</div></div><div class="hf-a">→</div>
+<div class="hf-b"><div class="hf-i">📊</div><div class="hf-l">Excelに自動転記</div><div class="hf-s">収集漏れゼロ</div></div><div class="hf-a">→</div>
+<div class="hf-b hf-out"><div class="hf-i">🤖</div><div class="hf-l">候補リスト生成</div><div class="hf-s">制約条件反映</div></div><div class="hf-a">→</div>
+<div class="hf-b"><div class="hf-i">✅</div><div class="hf-l">確定するだけ</div><div class="hf-s">ここだけ人間</div></div><div class="hf-a">→</div>
+<div class="hf-b hf-out"><div class="hf-i">📤</div><div class="hf-l">通知＋勤怠連携</div><div class="hf-s">全自動</div></div>
+</div>
+<div style="display:flex;align-items:center;justify-content:center;gap:16px;margin-top:16px">
+<a href="https://www.portament.jp/contact" class="hero-cta">まずは無料ヒアリング</a>
+<div class="seal">自動<br/>化</div>
+</div></div></section>
+
+<section class="s washi" id="problem" style="background:var(--paper-warm)"><div class="si">
+<div class="s-label">PROBLEM</div><h2 class="s-title">シフト管理、こんな手間がかかっていませんか？</h2><p class="s-desc">どの業種でも共通する、シフト管理の5つの痛み</p>
+<div class="prob-grid">
+<div class="prob-card"><div class="prob-icon">📨</div><h3>収集がバラバラ</h3><p>メール・LINE・口頭・紙でバラバラに届く。転記ミスや収集漏れが毎月発生。</p></div>
+<div class="prob-card"><div class="prob-icon">🧩</div><h3>調整が属人化</h3><p>希望が競合したとき、誰がどう判断しているかが担当者の頭の中だけ。</p></div>
+<div class="prob-card"><div class="prob-icon">📤</div><h3>連絡だけで半日</h3><p>確定シフトを全員・全店舗に送るだけで時間がかかる。変更時はまた全員に。</p></div>
+<div class="prob-card"><div class="prob-icon">🔄</div><h3>システム入力が二度手間</h3><p>Excelで作ったシフトを、勤怠システムにも手で入力し直す。</p></div>
+<div class="prob-card"><div class="prob-icon">📞</div><h3>欠勤対応が電話一本</h3><p>当日の穴埋めは担当者が一人ずつ電話。「誰が空いてるか」は頭の中だけ。</p></div>
+</div></div></section>
+
+<div class="divider"><div class="divider-line"></div><div class="divider-diamond"></div><div class="divider-line"></div></div>
+
+<section class="s washi" id="flow"><div class="si">
+<div class="s-label">HOW IT WORKS</div><h2 class="s-title">5つのステップでシフト管理が完了</h2><p class="s-desc">あなたがやるのは「候補リストを見てOKを出すだけ」</p>
+<div class="step-tabs">
+<button class="step-tab active" onclick="switchStep(0)">① 希望収集</button><button class="step-tab" onclick="switchStep(1)">② 自動転記</button><button class="step-tab" onclick="switchStep(2)">③ 候補生成</button><button class="step-tab" onclick="switchStep(3)">④ 確定</button><button class="step-tab" onclick="switchStep(4)">⑤ 通知＋連携</button>
+</div>
+<div class="step-panel active" id="stp0"><div class="step-card"><h3>① 希望を自動で集める</h3><p>毎月決まったタイミングで、スタッフにシフト希望の入力依頼が自動送信されます。</p><div class="step-det"><div class="step-pt"><strong>自動アナウンス</strong>「来月のシフト希望を○日までに提出してください」が自動で届きます。</div><div class="step-pt"><strong>リマインド</strong>未回答のスタッフには期限前に自動で催促。漏れゼロ。</div></div></div></div>
+<div class="step-panel" id="stp1"><div class="step-card"><h3>② 回答をExcelに自動転記</h3><p>スタッフからの回答がExcelやスプレッドシートに自動で転記されます。</p><div class="step-det"><div class="step-pt"><strong>バラバラ→一元化</strong>メール・LINE・フォームなど、どの方法で回答しても1つのシートに集約。</div><div class="step-pt"><strong>転記ミスゼロ</strong>手入力がないので、名前の打ち間違いや日付のズレが起きません。</div></div></div></div>
+<div class="step-panel" id="stp2"><div class="step-card"><h3>③ 制約を反映した候補リストを自動生成</h3><p>NG日・通勤時間・資格・連続勤務制限など、制約条件を反映した候補シフトが自動で作られます。</p><div class="step-det"><div class="step-pt"><strong>制約条件の例</strong>NG日、通勤時間、資格・スキル、連続勤務上限、希望の優先度…</div><div class="step-pt"><strong>複数パターン</strong>「この人を入れた場合」「外した場合」など、複数の候補を比較可能。</div></div></div></div>
+<div class="step-panel" id="stp3"><div class="step-card"><h3>④ あなたが確定するだけ</h3><p>候補リストを見て「これでOK」と判断。ここだけ人間の仕事です。</p><div class="step-det"><div class="step-pt"><strong>判断に集中</strong>集計・調整・転記の手間がないから、「この配置で大丈夫か？」の判断だけに集中。</div><div class="step-pt"><strong>修正も簡単</strong>候補リスト上で入れ替えるだけ。ゼロから作り直す必要なし。</div></div></div></div>
+<div class="step-panel" id="stp4"><div class="step-card"><h3>⑤ 確定通知＋勤怠連携まで自動</h3><p>確定ボタンを押すと、全員に確定シフトが自動通知。勤怠システムへの入力も自動。</p><div class="step-det"><div class="step-pt"><strong>一斉通知</strong>全スタッフ・全店舗に確定シフトが自動送信。個別連絡は不要。</div><div class="step-pt"><strong>勤怠連携</strong>確定シフトを勤怠システムに自動入力。二度手間なし。</div></div></div></div>
+</div></section>
+
+
+<!-- Enhanced Demo -->
+
+<!-- ===== ENHANCED INTERACTIVE DEMO ===== -->
+<section class="s washi" id="demo" style="background:var(--paper-warm)"><div class="si">
+<div class="s-label">EXPERIENCE</div><h2 class="s-title">シフト管理の自動化を体験</h2>
+<p class="s-desc">イレギュラー対応まで含めた体験ができます</p>
+<div style="background:var(--paper);border:1px solid var(--paper-dark);overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,.06)">
+
+<div style="background:var(--paper-warm);padding:8px 12px;border-bottom:1px solid var(--paper-dark);display:flex;align-items:center;justify-content:space-between">
+<div style="display:flex;align-items:center;gap:5px"><div style="width:8px;height:8px;border-radius:50%;background:var(--red);opacity:.6"></div><div style="width:8px;height:8px;border-radius:50%;background:var(--gold);opacity:.6"></div><div style="width:8px;height:8px;border-radius:50%;background:var(--green);opacity:.6"></div><div style="background:var(--paper);border:1px solid var(--paper-dark);padding:3px 8px;font-size:9px;color:var(--ink-faint);margin-left:4px">ops-shift.app</div></div>
+<div style="display:flex;align-items:center;gap:6px;font-size:9px"><span style="color:var(--green);font-weight:600">自動処理された作業：</span><span style="background:var(--green);color:var(--paper);font-weight:800;padding:2px 8px;border-radius:100px;font-size:10px;min-width:20px;text-align:center" id="tv">0</span><span style="color:var(--ink-faint)">件</span></div>
+</div>
+
+<div style="padding:20px;min-height:460px">
+
+<!-- D1 -->
+<div class="demo-s active" id="d1"><div style="max-width:420px;margin:0 auto">
+<div style="font-family:var(--serif);font-size:11px;font-weight:600;color:var(--green);text-align:center;margin-bottom:10px">📩 STEP 1：アナウンスメールが自動送信</div>
+<div style="background:var(--paper-warm);border:1px solid var(--paper-dark);padding:16px">
+<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--paper-dark)"><span style="font-size:14px">✉️</span><div><div style="font-size:10px;font-weight:600">差出人：シフト管理システム</div><div style="font-size:9px;color:var(--ink-faint)">宛先：全スタッフ（25名）</div></div></div>
+<div style="font-family:var(--serif);font-size:12px;font-weight:700;margin-bottom:6px">【シフト希望の提出のお願い】5月分</div>
+<div style="font-size:11px;color:var(--ink-faint);line-height:1.8">お疲れ様です。<br/>5月分のシフト希望を、<strong>4月20日（日）</strong>までに提出してください。<br/><br/><span style="color:var(--green);text-decoration:underline">▶ シフト希望入力フォーム</span></div>
+</div>
+<div style="text-align:center;margin-top:8px;font-size:9px;color:var(--ink-faint)">毎月15日に自動送信 ／ 未回答者には18日にリマインド</div>
+</div>
+<div style="text-align:center;margin-top:12px"><button onclick="startDemo()" class="dbtn">回答が届き始める →</button></div>
+</div>
+
+<!-- D2 -->
+<div class="demo-s" id="d2"><div style="max-width:460px;margin:0 auto">
+<div style="font-family:var(--serif);font-size:11px;font-weight:600;color:var(--green);text-align:center;margin-bottom:10px">📊 STEP 2：回答がリアルタイムでExcelに転記</div>
+<div style="background:var(--paper-warm);border:1px solid var(--paper-dark);padding:14px;overflow-x:auto">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+<div style="font-size:10px;font-weight:600;color:var(--ink-faint)">📄 5月シフト希望一覧.xlsx</div>
+<div style="font-size:10px;font-weight:700;color:var(--green)" id="cc">提出率：0/25名（0%）</div>
+</div>
+<table style="width:100%;font-size:9px;border-collapse:collapse;min-width:420px"><thead><tr style="border-bottom:2px solid var(--paper-dark)"><th style="padding:5px;text-align:left;color:var(--ink-faint)">氏名</th><th style="padding:5px;text-align:center;color:var(--ink-faint)">5/1</th><th style="padding:5px;text-align:center;color:var(--ink-faint)">5/2</th><th style="padding:5px;text-align:center;color:var(--ink-faint)">5/3</th><th style="padding:5px;text-align:center;color:var(--ink-faint)">5/4</th><th style="padding:5px;text-align:center;color:var(--ink-faint)">5/5</th><th style="padding:5px;text-align:center;color:var(--ink-faint)">状態</th></tr></thead>
+<tbody id="cb"></tbody></table></div>
+<div style="text-align:center;margin-top:8px;font-size:9px;color:var(--ink-faint)" id="cs">回答を待っています...</div>
+</div></div>
+
+<!-- D2b: S1 Reminder -->
+<div class="demo-s" id="d2b"><div style="max-width:440px;margin:0 auto">
+<div style="font-family:var(--serif);font-size:11px;font-weight:600;color:var(--gold);text-align:center;margin-bottom:10px">⚠️ 未提出者を検出しました</div>
+<div style="background:rgba(184,134,11,.06);border:1px solid rgba(184,134,11,.2);padding:14px;margin-bottom:12px">
+<div style="font-size:10px;font-weight:600;color:var(--ink-light);margin-bottom:8px">提出状況</div>
+<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px">
+<span style="font-size:9px;padding:2px 8px;background:rgba(45,74,62,.06);color:var(--green);font-weight:600">✅ 佐藤</span>
+<span style="font-size:9px;padding:2px 8px;background:rgba(45,74,62,.06);color:var(--green);font-weight:600">✅ 田中</span>
+<span style="font-size:9px;padding:2px 8px;background:rgba(45,74,62,.06);color:var(--green);font-weight:600">✅ 鈴木</span>
+<span style="font-size:9px;padding:2px 8px;background:rgba(45,74,62,.06);color:var(--green);font-weight:600">✅ 高橋</span>
+<span style="font-size:9px;padding:2px 8px;background:rgba(45,74,62,.06);color:var(--green);font-weight:600">✅ 伊藤</span>
+<span style="font-size:9px;padding:2px 8px;background:rgba(179,59,36,.06);color:var(--red);font-weight:600;animation:pulse 1.5s infinite">❌ 山田 ← 未提出</span>
+</div></div>
+<div style="font-family:var(--serif);font-size:11px;font-weight:600;color:var(--green);margin-bottom:6px">📩 山田さんにリマインドメールを自動送信</div>
+<div style="background:var(--paper-warm);border:1px solid var(--paper-dark);padding:14px">
+<div style="font-size:9px;color:var(--ink-faint);margin-bottom:4px">To: 山田 ／ 件名: 【リマインド】5月シフト希望</div>
+<div style="font-size:10px;color:var(--ink-light);line-height:1.7">山田さん、お疲れ様です。<br/>5月分のシフト希望がまだ届いておりません。<br/><strong>期限：4月20日（日）</strong><br/><span style="color:var(--green);text-decoration:underline">▶ シフト希望入力フォーム</span></div>
+</div>
+<div style="text-align:center;margin-top:12px"><button onclick="reminderDone()" class="dbtn">山田さんが回答を提出 →</button></div>
+</div></div>
+
+<!-- D3: Constraint + Candidate -->
+<div class="demo-s" id="d3"><div style="max-width:460px;margin:0 auto">
+<div style="font-family:var(--serif);font-size:11px;font-weight:600;color:var(--green);text-align:center;margin-bottom:10px">🤖 STEP 3：制約を反映して候補シフトを自動生成</div>
+<div style="margin-bottom:12px"><div style="font-size:10px;font-weight:600;color:var(--ink-faint);margin-bottom:6px" id="cl">制約条件をチェック中...</div><div id="ct" style="display:flex;flex-wrap:wrap;gap:6px"></div></div>
+<div style="background:var(--paper-warm);border:1px solid var(--paper-dark);padding:14px;overflow-x:auto">
+<div style="font-size:10px;font-weight:600;color:var(--ink-faint);margin-bottom:8px">📄 5月シフト候補</div>
+<table style="width:100%;font-size:9px;border-collapse:collapse;min-width:420px"><thead><tr style="border-bottom:2px solid var(--paper-dark)"><th style="padding:5px;text-align:left;color:var(--ink-faint)">店舗</th><th style="padding:5px;text-align:center;color:var(--ink-faint)">5/1</th><th style="padding:5px;text-align:center;color:var(--ink-faint)">5/2</th><th style="padding:5px;text-align:center;color:var(--ink-faint)">5/3</th><th style="padding:5px;text-align:center;color:var(--ink-faint)">5/4</th><th style="padding:5px;text-align:center;color:var(--ink-faint)">5/5</th></tr></thead>
+<tbody>
+<tr style="border-bottom:1px solid var(--paper-dark)"><td style="padding:5px;font-weight:600">A店</td><td style="padding:5px;text-align:center" id="a1">-</td><td style="padding:5px;text-align:center" id="a2">-</td><td style="padding:5px;text-align:center" id="a3">-</td><td style="padding:5px;text-align:center" id="a4">-</td><td style="padding:5px;text-align:center" id="a5">-</td></tr>
+<tr style="border-bottom:1px solid var(--paper-dark)"><td style="padding:5px;font-weight:600">B店</td><td style="padding:5px;text-align:center" id="b1">-</td><td style="padding:5px;text-align:center" id="b2">-</td><td style="padding:5px;text-align:center" id="b3">-</td><td style="padding:5px;text-align:center" id="b4">-</td><td style="padding:5px;text-align:center" id="b5">-</td></tr>
+<tr><td style="padding:5px;font-weight:600">C店</td><td style="padding:5px;text-align:center" id="c1">-</td><td style="padding:5px;text-align:center" id="c2">-</td><td style="padding:5px;text-align:center" id="c3">-</td><td style="padding:5px;text-align:center" id="c4">-</td><td style="padding:5px;text-align:center" id="c5">-</td></tr>
+</tbody></table></div>
+<div style="text-align:center;margin-top:12px;display:none" id="d3btn"><button onclick="go(3.5)" class="dbtn">次へ →</button></div>
+</div></div>
+
+<!-- D3b: S2 Hole fill -->
+<div class="demo-s" id="d3b"><div style="max-width:440px;margin:0 auto">
+<div style="font-family:var(--serif);font-size:11px;font-weight:600;color:var(--red);text-align:center;margin-bottom:10px">⚠️ 人員が不足している日があります</div>
+<div style="background:rgba(179,59,36,.06);border:1px solid rgba(179,59,36,.2);padding:14px;margin-bottom:12px">
+<div style="font-family:var(--serif);font-size:12px;font-weight:700;color:var(--red);margin-bottom:6px">C店 5/3（土）— 必要1名・候補0名</div>
+<div style="font-size:10px;color:var(--ink-faint);line-height:1.7"><strong>原因：</strong><br/>・佐藤 → 5/3 NG（通院）<br/>・伊藤 → 5/3 NG（旅行）<br/>・田中 → 5/3 A店に配置済み</div></div>
+<div style="font-family:var(--serif);font-size:11px;font-weight:600;color:var(--green);margin-bottom:8px">🤖 出勤可能な候補を自動抽出</div>
+<div style="background:var(--paper-warm);border:1px solid var(--paper-dark);padding:14px;margin-bottom:12px">
+<div style="font-size:10px;font-weight:600;color:var(--ink-faint);margin-bottom:6px">対応可能な候補：</div>
+<div style="display:flex;flex-direction:column;gap:4px">
+<div style="font-size:10px;color:var(--ink-light);padding:6px 8px;background:rgba(45,74,62,.06);border:1px solid rgba(45,74,62,.12)">① <strong>鈴木</strong>（5/3は未配置・C店対応可・通勤20分）</div>
+<div style="font-size:10px;color:var(--ink-light);padding:6px 8px;background:var(--paper);border:1px solid var(--paper-dark)">② <strong>山田</strong>（5/3は未配置・C店対応可・通勤25分）</div>
+</div></div>
+<div style="font-family:var(--serif);font-size:11px;font-weight:600;color:var(--green);margin-bottom:6px">📩 鈴木さんに自動で打診</div>
+<div style="text-align:center;margin-top:12px"><button onclick="fillHole()" class="dbtn-green">鈴木さんが「対応可能」と回答 →</button></div>
+</div></div>
+
+<!-- D4: Manual adjust -->
+<div class="demo-s" id="d4"><div style="max-width:460px;margin:0 auto">
+<div style="font-family:var(--serif);font-size:11px;font-weight:600;color:var(--green);text-align:center;margin-bottom:6px">✅ STEP 4：確定する（ここだけ人間の判断）</div>
+<div style="font-size:10px;color:var(--ink-faint);text-align:center;margin-bottom:12px">💡 <strong>セルをクリック</strong>で担当者を変更できます</div>
+<div style="background:var(--paper-warm);border:1px solid var(--paper-dark);padding:14px;overflow-x:auto">
+<table style="width:100%;font-size:10px;border-collapse:collapse;min-width:420px"><thead><tr style="border-bottom:2px solid var(--paper-dark)"><th style="padding:6px;text-align:left;color:var(--ink-faint)">店舗</th><th style="padding:6px;text-align:center;color:var(--ink-faint)">5/1</th><th style="padding:6px;text-align:center;color:var(--ink-faint)">5/2</th><th style="padding:6px;text-align:center;color:var(--ink-faint)">5/3</th><th style="padding:6px;text-align:center;color:var(--ink-faint)">5/4</th><th style="padding:6px;text-align:center;color:var(--ink-faint)">5/5</th></tr></thead>
+<tbody id="ab"></tbody></table></div>
+<div style="text-align:center;margin-top:8px;font-size:9px;color:var(--ink-faint)">変更回数：<strong id="ac">0</strong>回</div>
+<div style="text-align:center;margin-top:12px"><button onclick="go(5)" class="dbtn-green">✅ このシフトで確定</button></div>
+</div></div>
+
+<!-- D5: Notify -->
+<div class="demo-s" id="d5"><div style="max-width:440px;margin:0 auto">
+<div style="font-family:var(--serif);font-size:11px;font-weight:600;color:var(--green);text-align:center;margin-bottom:10px">📨 STEP 5：確定通知＋勤怠連携</div>
+<div style="display:flex;flex-direction:column;gap:10px;margin-bottom:12px">
+<div style="background:var(--paper-warm);border:1px solid var(--paper-dark);padding:14px"><div style="font-size:10px;color:var(--ink-faint)">✅ 全25名に確定シフトを送信完了</div></div>
+<div style="background:var(--paper-warm);border:1px solid var(--paper-dark);padding:14px"><div style="font-size:10px;color:var(--green);font-weight:600">✅ KING OF TIME に5月シフトを自動登録完了</div></div>
+</div>
+<div style="text-align:center;background:rgba(45,74,62,.04);border:1px solid rgba(45,74,62,.12);padding:12px;font-family:var(--serif);font-size:11px;color:var(--green);font-weight:600;margin-bottom:12px">🎉 シフト確定・通知・勤怠連携が完了！</div>
+<div style="text-align:center"><button onclick="go(5.5)" class="dbtn" style="background:var(--red)">⚡ 2日後：急な変更が発生！ →</button></div>
+</div></div>
+
+<!-- D5b: S3 Post-change -->
+<div class="demo-s" id="d5b"><div style="max-width:440px;margin:0 auto">
+<div style="font-family:var(--serif);font-size:11px;font-weight:600;color:var(--red);text-align:center;margin-bottom:10px">⚡ 確定後の変更依頼を受信</div>
+<div style="background:rgba(179,59,36,.06);border:1px solid rgba(179,59,36,.2);padding:14px;margin-bottom:12px">
+<div style="font-size:9px;color:var(--red);font-weight:600;margin-bottom:4px">📩 田中さんからのメッセージ</div>
+<div style="font-size:11px;color:var(--ink-light);line-height:1.7">「すみません、5/4に急な家庭の事情が入り、<br/>B店の勤務に出られなくなりました。」</div></div>
+<div style="font-family:var(--serif);font-size:11px;font-weight:600;color:var(--green);margin-bottom:8px">🤖 代替候補を自動検索</div>
+<div style="background:var(--paper-warm);border:1px solid var(--paper-dark);padding:14px;margin-bottom:12px">
+<div style="font-size:10px;font-weight:600;color:var(--ink-faint);margin-bottom:6px">📊 5/4 B店 代替候補リスト</div>
+<div style="display:flex;flex-direction:column;gap:4px">
+<div style="font-size:10px;color:var(--ink-light);padding:6px 8px;background:rgba(45,74,62,.06);border:1px solid rgba(45,74,62,.12)">① <strong>高橋</strong>（5/4空き・B店OK・通勤20分）</div>
+<div style="font-size:10px;color:var(--ink-light);padding:6px 8px;background:var(--paper);border:1px solid var(--paper-dark)">② <strong>伊藤</strong>（5/4空き・B店要相談）</div>
+<div style="font-size:9px;color:var(--ink-faint);padding:4px 8px">※ 佐藤→A店配置済 ✕ ／ 鈴木→5/4 NG ✕ ／ 山田→C店配置済 ✕</div>
+</div></div>
+<div style="text-align:center;margin-top:12px"><button onclick="changeOK()" class="dbtn-green">高橋さんが「OK」と回答 →</button></div>
+</div></div>
+
+<!-- D6: Final -->
+<div class="demo-s" id="d6"><div style="max-width:440px;margin:0 auto">
+<div style="font-family:var(--serif);font-size:11px;font-weight:600;color:var(--green);text-align:center;margin-bottom:10px">✅ 変更処理が完了しました</div>
+<div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px">
+<div style="font-size:10px;color:var(--ink-faint);padding:8px;background:var(--paper-warm);border:1px solid var(--paper-dark)">📊 スプシ更新：5/4 B店 田中→<strong style="color:var(--green)">高橋</strong>に変更</div>
+<div style="font-size:10px;color:var(--ink-faint);padding:8px;background:var(--paper-warm);border:1px solid var(--paper-dark)">📩 通知：田中「変更受付済」／ 高橋「5/4 B店確定」／ 管理者「変更レポート」</div>
+<div style="font-size:10px;color:var(--ink-faint);padding:8px;background:var(--paper-warm);border:1px solid var(--paper-dark)">🔗 勤怠システム：変更分を自動で再登録完了</div>
+</div>
+
+<div style="text-align:center;background:rgba(45,74,62,.04);border:2px solid var(--green);padding:24px">
+<div style="font-family:var(--serif);font-size:16px;font-weight:900;color:var(--green);margin-bottom:10px">🎉 すべて完了！</div>
+<div style="text-align:center;margin-bottom:14px">
+<div style="font-size:9px;color:var(--ink-faint);margin-bottom:4px">今回自動で処理された作業</div>
+<div style="font-family:var(--serif);font-size:48px;font-weight:900;color:var(--green)" id="ft">0</div>
+<div style="font-size:13px;color:var(--green);font-weight:600">件の作業が自動化されました</div>
+</div>
+<div style="background:var(--paper);border:1px solid var(--paper-dark);padding:12px;text-align:left;font-size:10px;color:var(--ink-faint);line-height:1.8;margin-bottom:12px">
+<div style="font-weight:600;color:var(--green);margin-bottom:4px">自動で処理されたこと：</div>
+✅ 25名にアナウンス自動送信<br/>✅ 1名の未提出者に自動リマインド<br/>✅ 6名分の回答を自動転記<br/>✅ 8つの制約条件を自動チェック<br/>✅ 1日分の人員不足を自動で解消<br/>✅ 25名に確定通知を自動送信<br/>✅ 勤怠システムに自動登録<br/>✅ 1件の急な変更を自動で対応<br/><br/>
+<strong style="color:var(--ink)">あなたがやったのは：</strong><br/>① 候補リストを見て確定（1回）<br/>② 必要に応じてセルを調整（任意）
+</div></div>
+<div style="text-align:center;margin-top:12px"><button onclick="demoReset()" class="dbtn" style="background:var(--ink-faint)">← もう一度体験</button> <a href="https://www.portament.jp/contact" class="dbtn" style="text-decoration:none;display:inline-block">導入について相談する</a></div>
+</div></div>
+
+</div></div>
+<div style="display:flex;justify-content:center;gap:4px;padding:10px;background:var(--paper-warm);border-top:1px solid var(--paper-dark)">
+<div id="p1" class="dot on"></div><div id="p2" class="dot"></div><div id="p3" class="dot"></div><div id="p4" class="dot"></div><div id="p5" class="dot"></div><div id="p6" class="dot"></div><div id="p7" class="dot"></div><div id="p8" class="dot"></div><div id="p9" class="dot"></div>
+</div>
+</div></div></section>
+
+<section class="s washi" id="usecases"><div class="si">
+<div class="s-label">USE CASES</div><h2 class="s-title">あなたの会社はどれですか？</h2><p class="s-desc">業種・規模を問わず、シフト管理の悩みを解決します</p>
+<div class="uc-grid">
+<div class="uc-card" onclick="showUC(0)"><div class="uc-icon">🏢</div><h3>多店舗展開の管理部門</h3><p>複数拠点のヘルプ・応援スタッフの配置調整</p></div>
+<div class="uc-card" onclick="showUC(1)"><div class="uc-icon">🍽</div><h3>単店舗の中小・サービス業</h3><p>パート・バイトの希望収集がバラバラ</p></div>
+<div class="uc-card" onclick="showUC(2)"><div class="uc-icon">🏥</div><h3>製造・医療・介護</h3><p>資格・夜勤・法定休日の制約が複雑</p></div>
+</div>
+<div id="uc-detail-area"></div>
+</div></section>
+
+<section class="s washi" id="compare" style="background:var(--paper-warm)"><div class="si">
+<div class="s-label">COMPARISON</div><h2 class="s-title">既存のシフト管理SaaS vs オプスシフト</h2><p class="s-desc">「乗り換える」のではなく「今のやり方に重ねる」発想です</p>
+<table class="cmp">
+<thead><tr><th style="text-align:left">比較軸</th><th style="text-align:center">既存SaaS</th><th style="text-align:center;color:var(--green)">オプスシフト</th></tr></thead>
+<tbody>
+<tr><td style="font-weight:600">導入形態</td><td style="text-align:center;color:var(--red)">システムを乗り換え</td><td style="text-align:center;color:var(--green);font-weight:600">今のExcel・メールに重ねる</td></tr>
+<tr><td style="font-weight:600">カスタマイズ</td><td style="text-align:center">パッケージ内で完結</td><td style="text-align:center;font-weight:600">業務フローに合わせて個別設計</td></tr>
+<tr><td style="font-weight:600">対象規模</td><td style="text-align:center">中〜大企業向けが多い</td><td style="text-align:center;font-weight:600">5〜50人に特に強い</td></tr>
+<tr><td style="font-weight:600">導入ハードル</td><td style="text-align:center;color:var(--red)">全員の操作研修が必要</td><td style="text-align:center;color:var(--green);font-weight:600">担当者1人が変わるだけ</td></tr>
+<tr><td style="font-weight:600">既存ツール</td><td style="text-align:center;color:var(--red)">捨てて乗り換え</td><td style="text-align:center;color:var(--green);font-weight:600">Excel・メールそのまま使える</td></tr>
+</tbody></table>
+</div></section>
+
+<section class="s washi"><div class="si">
+<div class="s-label">CASE STUDY</div><h2 class="s-title">導入事例</h2><p class="s-desc">実際に自動化した企業の声</p>
+<div class="case-box">
+<div style="font-family:var(--serif);font-size:12px;color:var(--green);font-weight:600;margin-bottom:12px">多店舗展開企業（25店舗・稼働者10名規模）</div>
+<div style="display:flex;justify-content:center;gap:24px;flex-wrap:wrap;margin-bottom:16px">
+<div style="text-align:center"><div class="case-label">Before</div><div class="case-num" style="color:var(--red)">丸2日</div><div class="case-label">毎月のシフト集計</div></div>
+<div style="align-self:center;font-size:24px;color:var(--green)">→</div>
+<div style="text-align:center"><div class="case-label">After</div><div class="case-num">半日</div><div class="case-label">候補を確認するだけ</div></div>
+</div>
+<div style="font-size:11px;color:var(--ink-faint);line-height:1.8;text-align:left;max-width:500px;margin:0 auto">メール・電話でバラバラだったシフト希望の収集を自動化。制約条件を反映した候補リストが自動で作られるようになり、担当者の作業は「確認してOKを出すだけ」に。毎月丸2日かかっていた作業が半日で完了するようになりました。</div>
+</div></div></section>
+
+<section class="s washi" id="faq" style="background:var(--paper-warm)"><div class="si">
+<div class="s-label">FAQ</div><h2 class="s-title">よくあるご質問</h2>
+<div style="margin-top:24px">
+<div class="faq-item"><div class="faq-q">今使っているExcelをそのまま使えますか？</div><div class="faq-a">はい。今お使いのExcelやスプレッドシートの形式をそのまま活かして自動化します。</div></div>
+<div class="faq-item"><div class="faq-q">うちの業種でも使えますか？</div><div class="faq-a">シフト管理が発生する業種であれば対応可能です。飲食・小売・医療・介護・製造・物流など実績があります。</div></div>
+<div class="faq-item"><div class="faq-q">スタッフに操作研修は必要ですか？</div><div class="faq-a">不要です。スタッフはこれまで通り希望を出すだけ。変わるのは管理者の裏側の作業だけです。</div></div>
+<div class="faq-item"><div class="faq-q">勤怠システムとの連携はできますか？</div><div class="faq-a">KING OF TIME、ジョブカンなど主要な勤怠システムとの連携が可能です。</div></div>
+<div class="faq-item"><div class="faq-q">導入にどのくらい時間がかかりますか？</div><div class="faq-a">最短2週間程度です。まずは無料ヒアリングでお話をお聞かせください。</div></div>
+<div class="faq-item"><div class="faq-q">当日の欠勤対応にも使えますか？</div><div class="faq-a">はい。条件に合うスタッフのリストを瞬時に生成し、一斉連絡を自動で行えます。</div></div>
+</div></div></section>
+
+<section class="cta-s"><div class="cta-inner">
+<div class="divider" style="padding:0 0 28px"><div class="divider-line" style="background:var(--gold-light)"></div><div class="divider-diamond" style="background:var(--gold-light)"></div><div class="divider-line" style="background:var(--gold-light)"></div></div>
+<h2 style="font-family:var(--serif);color:var(--paper);font-size:clamp(20px,3vw,28px);font-weight:900;letter-spacing:2px;margin-bottom:12px">シフト管理を、もっとシンプルに。</h2>
+<p style="color:rgba(245,240,232,.5);font-size:12px;margin-bottom:28px;line-height:2">今のExcelとメールを捨てなくていい。<br/>集計と連絡だけ、自動化する。</p>
+<a href="https://www.portament.jp/contact" class="cta-btn">まずは無料ヒアリング</a>
+</div></section>
+
+<footer>© 2026 オプスシフト by PORTAMENT Inc.</footer>
+
+
+
+<script>
+document.head.insertAdjacentHTML('beforeend','<style>.dbtn{background:var(--green);color:var(--paper);border:none;padding:10px 28px;font-family:var(--serif);font-size:12px;font-weight:600;cursor:pointer;transition:all .2s}.dbtn:hover{opacity:.85}.dbtn-green{background:var(--green);color:var(--paper);border:none;padding:10px 28px;font-family:var(--serif);font-size:12px;font-weight:600;cursor:pointer}.dbtn-green:hover{opacity:.85}.dot{width:7px;height:7px;border-radius:50%;background:var(--paper-dark);transition:all .3s}.dot.on{background:var(--green)}</style>');
+
+
+let taskCount=0;function addTasks(n){taskCount+=n;document.getElementById('tv').textContent=taskCount}function resetCounter(){taskCount=0;document.getElementById('tv').textContent='0'}
+
+function dots(n){for(let i=1;i<=9;i++){document.getElementById('p'+i).classList.toggle('on',i<=n)}}
+
+const S=[{n:'佐藤',a:[1,1,0,1,1]},{n:'田中',a:[1,0,1,1,0]},{n:'鈴木',a:[1,1,1,0,1]},{n:'高橋',a:[0,1,1,1,1]},{n:'伊藤',a:[1,1,0,0,1]}];
+const yamada={n:'山田',a:[1,1,1,1,0]};
+const names=['佐藤','田中','鈴木','山田','高橋','伊藤'];
+const grid=[['佐藤','佐藤','田中','佐藤','鈴木'],['田中','鈴木','佐藤','田中','高橋'],['山田','山田','—','山田','伊藤']];
+const gridFilled=[['佐藤','佐藤','田中','佐藤','鈴木'],['田中','鈴木','佐藤','田中','高橋'],['山田','山田','鈴木','山田','伊藤']];
+
+function show(id){document.querySelectorAll('.demo-s').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active')}
+function startDemo(){show('d2');dots(2);addTasks(1);animCollect()}
+
+function animCollect(){
+  const body=document.getElementById('cb');body.innerHTML='';let i=0;
+  const iv=setInterval(()=>{
+    if(i>=S.length){clearInterval(iv);const done=Math.min(23,3+(i*4));document.getElementById('cc').textContent='提出率：'+done+'/25名（'+Math.round(done/25*100)+'%）';document.getElementById('cs').innerHTML='<span style="color:var(--gold);font-weight:600">⚠️ 山田さんが未提出。リマインドを自動送信...</span>';addTasks(1);setTimeout(()=>{show('d2b');dots(3)},1500);return}
+    const s=S[i];const tr=document.createElement('tr');
+    tr.style.cssText='border-bottom:1px solid var(--paper-dark);animation:fadeUp .3s ease;background:rgba(45,74,62,.06)';
+    setTimeout(()=>{tr.style.background='transparent'},600);
+    tr.innerHTML='<td style="padding:5px;font-weight:600">'+s.n+'</td>'+s.a.map(v=>'<td style="padding:5px;text-align:center;'+(v?'':'color:var(--red)')+'">'+(v?'○':'✕')+'</td>').join('')+'<td style="padding:5px;text-align:center"><span style="color:var(--green);font-size:8px;font-weight:600">提出済</span></td>';
+    body.appendChild(tr);const done=Math.min(25,3+(i*4));
+    document.getElementById('cc').textContent='提出率：'+done+'/25名（'+Math.round(done/25*100)+'%）';
+    document.getElementById('cs').textContent=s.n+'さんの回答を転記';i++},700)}
+
+function reminderDone(){addTasks(1);
+  const body=document.getElementById('cb');const tr=document.createElement('tr');
+  tr.style.cssText='border-bottom:1px solid var(--paper-dark);animation:fadeUp .3s ease;background:rgba(184,134,11,.1)';
+  setTimeout(()=>{tr.style.background='transparent'},800);
+  tr.innerHTML='<td style="padding:5px;font-weight:600">山田</td>'+yamada.a.map(v=>'<td style="padding:5px;text-align:center;'+(v?'':'color:var(--red)')+'">'+(v?'○':'✕')+'</td>').join('')+'<td style="padding:5px;text-align:center"><span style="color:var(--green);font-size:8px;font-weight:600">提出済</span></td>';
+  body.appendChild(tr);document.getElementById('cc').textContent='提出率：25/25名（100%）';
+  document.getElementById('cs').innerHTML='<span style="color:var(--green);font-weight:600">✅ 全員回答完了！</span>';
+  setTimeout(()=>{show('d3');dots(4);animConstraints()},1500)}
+
+const cons=[{t:'佐藤→5/3 NG',c:'var(--red)'},{t:'田中→5/2,5/5 NG',c:'var(--red)'},{t:'鈴木→5/4 NG',c:'var(--red)'},{t:'山田→5/5 NG',c:'var(--red)'},{t:'高橋→5/1 NG',c:'var(--red)'},{t:'伊藤→5/3,4 NG',c:'var(--red)'},{t:'連続3日制限',c:'var(--gold)'},{t:'各店舗1名以上',c:'var(--green)'}];
+
+function animConstraints(){
+  const tags=document.getElementById('ct');tags.innerHTML='';let i=0;
+  const iv=setInterval(()=>{
+    if(i>=cons.length){clearInterval(iv);document.getElementById('cl').textContent='✅ 全制約確認完了。候補配置中...';addTasks(1);setTimeout(animCandidates,600);return}
+    const c=cons[i];const tag=document.createElement('span');
+    tag.style.cssText='font-size:8px;padding:3px 8px;font-weight:600;color:'+c.c+';background:var(--paper);border:1px solid var(--paper-dark);animation:fadeUp .3s ease';
+    tag.textContent=c.t;tags.appendChild(tag);
+    document.getElementById('cl').textContent='制約チェック中... ('+(i+1)+'/'+cons.length+')';i++},350)}
+
+function animCandidates(){
+  const cells=['a','b','c'];const order=[];
+  for(let d=1;d<=5;d++)for(let s=0;s<3;s++)order.push({id:cells[s]+d,val:grid[s][d-1]});
+  let i=0;
+  const iv=setInterval(()=>{
+    if(i>=order.length){clearInterval(iv);document.getElementById('cl').textContent='✅ 候補生成完了（C店 5/3に穴あり）';
+      const hole=document.getElementById('c3');hole.style.background='rgba(179,59,36,.1)';hole.style.color='var(--red)';hole.style.fontWeight='700';
+      document.getElementById('d3btn').style.display='block';return}
+    const o=order[i];const el=document.getElementById(o.id);
+    if(o.val==='—'){el.textContent='—';el.style.color='var(--red)';el.style.background='rgba(179,59,36,.1)';el.style.fontWeight='700'}
+    else if(i===2||i===8||i===13){el.textContent='✕';el.style.color='var(--red)';el.style.background='rgba(179,59,36,.06)';setTimeout(()=>{el.textContent=o.val;el.style.color='var(--green)';el.style.background='rgba(45,74,62,.06)';setTimeout(()=>{el.style.color='';el.style.background=''},400)},300)}
+    else{el.textContent=o.val;el.style.color='var(--green)';el.style.background='rgba(45,74,62,.06)';setTimeout(()=>{el.style.color='';el.style.background=''},400)}
+    i++},180)}
+
+function fillHole(){addTasks(1);const hole=document.getElementById('c3');hole.textContent='鈴木';hole.style.color='var(--green)';hole.style.background='rgba(45,74,62,.1)';hole.style.fontWeight='700';setTimeout(()=>{hole.style.color='';hole.style.background='';hole.style.fontWeight='';show('d4');dots(6);buildAdj()},800)}
+
+let adjCnt=0;
+function buildAdj(){
+  const body=document.getElementById('ab');body.innerHTML='';adjCnt=0;document.getElementById('ac').textContent='0';
+  const stores=['A店','B店','C店'];
+  for(let s=0;s<3;s++){const tr=document.createElement('tr');if(s<2)tr.style.borderBottom='1px solid var(--paper-dark)';
+    tr.innerHTML='<td style="padding:6px;font-weight:600">'+stores[s]+'</td>';
+    for(let d=0;d<5;d++){const td=document.createElement('td');td.style.cssText='padding:6px;text-align:center;cursor:pointer;transition:all .15s';td.textContent=gridFilled[s][d];
+      td.onmouseover=function(){this.style.background='rgba(45,74,62,.06)';this.style.outline='2px solid var(--green)'};
+      td.onmouseout=function(){this.style.background='';this.style.outline=''};
+      td.onclick=function(){const cur=names.indexOf(this.textContent);this.textContent=names[(cur+1)%names.length];this.style.background='rgba(184,134,11,.1)';this.style.color='var(--gold)';setTimeout(()=>{this.style.background='';this.style.color=''},500);adjCnt++;document.getElementById('ac').textContent=adjCnt};
+      tr.appendChild(td)}body.appendChild(tr)}}
+
+function go(step){
+  if(step===3.5){show('d3b');dots(5);return}
+  if(step===5){show('d5');dots(7);addTasks(2);return}
+  if(step===5.5){show('d5b');dots(8);return}
+  if(step===6){show('d6');dots(9);addTasks(1);document.getElementById('ft').textContent=taskCount;return}}
+function changeOK(){go(6)}
+function switchStep(i){document.querySelectorAll('.step-tab').forEach((t,j)=>t.classList.toggle('active',j===i));document.querySelectorAll('.step-panel').forEach((p,j)=>p.classList.toggle('active',j===i))}
+
+function demoReset(){
+  resetCounter();
+  document.getElementById('cb').innerHTML='';document.getElementById('cc').textContent='提出率：0/25名（0%）';document.getElementById('cs').textContent='回答を待っています...';
+  ['a','b','c'].forEach(p=>{for(let i=1;i<=5;i++){const e=document.getElementById(p+i);if(e){e.textContent='-';e.style.color='';e.style.background='';e.style.fontWeight=''}}});
+  document.getElementById('ct').innerHTML='';document.getElementById('cl').textContent='制約条件をチェック中...';document.getElementById('d3btn').style.display='none';
+  show('d1');dots(1)}
+
+const ucData=[
+  {title:"多店舗展開の管理部門",before:"複数拠点のヘルプスタッフ配置を手作業で管理。毎月丸2日。",after:"要望は自動収集。制約を反映した候補リストが自動生成。未提出者に自動リマインド。穴があれば自動打診。丸2日→半日。",point:"25店舗・稼働者10名規模で実証済み。"},
+  {title:"単店舗の飲食・サービス業",before:"希望がLINE・紙でバラバラ。店長がExcelに手で転記。毎月1〜2日潰れる。",after:"スタッフはフォームに回答。Excelに自動転記、候補も自動生成。急な欠勤も代替候補を自動打診。",point:"変わるのは店長の裏側だけ。操作研修は不要。"},
+  {title:"製造・医療・介護",before:"資格要件あり。夜勤・法定休日・連続勤務制限。全部手作業で考慮。",after:"制約条件をシステムに登録。候補生成時に全制約を自動反映。法令違反は自動ブロック。確定後の変更にも自動対応。",point:"制約が複雑な業種ほど自動化が効く。コンプラリスクもゼロ。"}];
+function showUC(idx){document.querySelectorAll('.uc-card').forEach((c,i)=>c.classList.toggle('active',i===idx));const d=ucData[idx];document.getElementById('uc-detail-area').innerHTML='<div style="animation:fadeUp .4s ease;background:var(--paper);border:1px solid var(--paper-dark);padding:24px;margin-top:16px"><div style="font-family:var(--serif);font-size:16px;font-weight:700;margin-bottom:12px">'+d.title+'</div><div style="display:grid;grid-template-columns:1fr 30px 1fr;gap:10px;margin:16px 0"><div><div style="font-size:9px;font-weight:700;color:var(--red);background:rgba(179,59,36,.06);display:inline-block;padding:2px 8px;margin-bottom:4px">BEFORE</div><div style="font-size:12px;color:var(--ink-faint);line-height:1.8">'+d.before+'</div></div><div style="text-align:center;font-size:18px;color:var(--green);padding-top:20px">→</div><div><div style="font-size:9px;font-weight:700;color:var(--paper);background:var(--green);display:inline-block;padding:2px 8px;margin-bottom:4px">AFTER</div><div style="font-size:12px;color:var(--ink-faint);line-height:1.8">'+d.after+'</div></div></div><div style="background:rgba(45,74,62,.04);border:1px solid rgba(45,74,62,.12);padding:12px;font-size:11px;color:var(--green);line-height:1.7"><strong>💡</strong> '+d.point+'</div></div>'}
+</script>
+</body>
+</html>
